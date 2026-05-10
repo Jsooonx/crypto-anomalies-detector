@@ -1,0 +1,535 @@
+/* ─── Crypto Anomaly Detector — Kinetic Brutalism ─── */
+
+:root {
+    --bg-base: rgba(0, 0, 0, 0.65);
+    --bg-panel: rgba(5, 5, 5, 0.75);
+    --bg-header: rgba(10, 10, 10, 0.85);
+    --fg-base: #FFFFFF;
+    --fg-muted: #888888;
+    --border: rgba(255, 255, 255, 0.15);
+    --accent-safe: #CCFF00; /* Acid Green */
+    --accent-warn: #FF3333; /* Pure Red */
+    --font-mono: 'Space Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background-color: #000;
+    background-image: url('/static/Background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: repeat;
+    color: var(--fg-base);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+    text-transform: uppercase;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ─── Texture & Depth (Micro-interactions) ─── */
+
+.noise-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.05;
+    background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+}
+
+.scanlines {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 9998;
+    background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.15));
+    background-size: 100% 4px;
+}
+
+/* Glitch Title Animation */
+@keyframes glitch {
+    0% { clip-path: inset(20% 0 80% 0); transform: translate(-2px, 1px); }
+    20% { clip-path: inset(60% 0 10% 0); transform: translate(2px, -1px); }
+    40% { clip-path: inset(40% 0 50% 0); transform: translate(-2px, 2px); }
+    60% { clip-path: inset(80% 0 5% 0); transform: translate(2px, -2px); }
+    80% { clip-path: inset(10% 0 70% 0); transform: translate(-1px, 1px); }
+    100% { clip-path: inset(30% 0 50% 0); transform: translate(0); }
+}
+
+.glitch-text {
+    position: relative;
+    display: inline-block;
+    color: var(--fg-base);
+    font-weight: 700; 
+    font-size: 18px; 
+    letter-spacing: 2px;
+}
+
+.glitch-text::before, .glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--bg-header);
+    clip-path: inset(100% 0 0 0); /* hidden by default */
+}
+
+.header:hover .glitch-text::before {
+    left: 2px;
+    text-shadow: -1px 0 var(--accent-warn);
+    animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+}
+
+.header:hover .glitch-text::after {
+    left: -2px;
+    text-shadow: -1px 0 var(--accent-safe);
+    animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite reverse;
+}
+
+/* Mechanical Block Reveal Animation */
+@keyframes mechanicalReveal {
+    0% { opacity: 0; transform: scaleY(0.01) scaleX(0); }
+    40% { opacity: 1; transform: scaleY(0.01) scaleX(1); } /* Draw line */
+    100% { opacity: 1; transform: scaleY(1) scaleX(1); }    /* Expand block */
+}
+
+.stagger-enter {
+    animation: mechanicalReveal 0.4s cubic-bezier(0, 1, 0, 1) both;
+}
+
+/* Data Update Flash */
+@keyframes dataFlashSafe {
+    0% { background: var(--accent-safe); color: var(--bg-base); }
+    100% { background: var(--bg-base); color: inherit; }
+}
+@keyframes dataFlashWarn {
+    0% { background: var(--accent-warn); color: var(--bg-base); }
+    100% { background: var(--bg-base); color: inherit; }
+}
+
+.flash-safe { animation: dataFlashSafe 0.5s ease-out; }
+.flash-warn { animation: dataFlashWarn 0.5s ease-out; }
+
+
+/* ─── Brutalist Grid Layout ─── */
+.layout-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 50px 1fr;
+    height: calc(100vh - 20px);
+    border: 1px solid var(--border);
+    margin: 10px;
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.header {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    background: var(--bg-header);
+}
+
+.panel {
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    overflow-y: auto;
+}
+
+.panel-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--fg-muted);
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-header);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.sidebar { 
+    background: var(--bg-panel); 
+    width: 280px;
+    min-width: 200px;
+    max-width: 60vw;
+    resize: horizontal;
+    overflow: auto;
+}
+.main-content {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Make main content panels vertically resizable */
+.main-content > .panel {
+    resize: vertical;
+    flex-shrink: 0;
+    overflow: auto;
+}
+
+/* Set initial heights and limits for each section */
+.main-content > .panel:nth-child(1) { /* LIVE_TARGETS */
+    height: 40vh;
+    min-height: 200px;
+    max-height: 80vh;
+}
+
+.main-content > .panel:nth-child(2) { /* MODEL_TELEMETRY */
+    height: 180px;
+    min-height: 120px;
+    max-height: 80vh;
+}
+
+/* Branding */
+.branding { display: flex; gap: 15px; align-items: baseline; cursor: pointer; }
+.version { color: var(--fg-muted); font-size: 11px; }
+
+/* Status */
+.status-indicator { display: flex; gap: 20px; align-items: center; }
+.status-box {
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+}
+.status-box.live {
+    border-color: var(--accent-safe);
+    color: var(--accent-safe);
+}
+.timestamp { color: var(--fg-muted); }
+
+/* Metrics */
+.metrics-list { padding: 20px; display: flex; flex-direction: column; gap: 30px; }
+.metric-item { display: flex; flex-direction: column; gap: 5px; }
+.metric-label { color: var(--fg-muted); font-size: 11px; }
+.metric-value { font-size: 28px; font-weight: 700; }
+.metric-value.safe { color: var(--accent-safe); }
+.metric-value.warn { color: var(--accent-warn); }
+
+/* Pairs Grid */
+.pairs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1px;
+    background: var(--border);
+}
+
+.pair-card {
+    background: var(--bg-base);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    /* Springy transform for mechanical feel */
+    transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.1s;
+    transform-origin: center;
+}
+
+/* Inverted Hover State */
+.pair-card:hover {
+    background: var(--accent-safe);
+    color: var(--bg-base);
+    transform: translate(-4px, -4px);
+    box-shadow: 4px 4px 0 var(--border);
+    z-index: 5;
+    cursor: crosshair;
+}
+
+.pair-card:hover .detail-label,
+.pair-card:hover .pair-badge {
+    color: var(--bg-base);
+    border-color: var(--bg-base);
+}
+
+.pair-card:hover .detail-value.positive,
+.pair-card:hover .detail-value.negative {
+    color: var(--bg-base);
+    font-weight: 900;
+}
+
+.pair-card.anomaly {
+    background: rgba(40, 5, 5, 0.8);
+}
+.pair-card.anomaly::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 4px; height: 100%;
+    background: var(--accent-warn);
+}
+
+.pair-card.anomaly:hover {
+    background: var(--accent-warn);
+    box-shadow: 4px 4px 0 var(--accent-safe);
+}
+.pair-card.anomaly:hover::before {
+    background: var(--bg-base);
+}
+
+.pair-header { display: flex; justify-content: space-between; align-items: center; }
+.pair-name { font-weight: 700; font-size: 16px; }
+.pair-badge {
+    border: 1px solid var(--fg-muted);
+    padding: 2px 6px;
+    font-size: 10px;
+    color: var(--fg-muted);
+}
+.pair-badge.alert {
+    border-color: var(--accent-warn);
+    color: var(--accent-warn);
+    background: rgba(255,51,51,0.1);
+}
+.pair-price { font-size: 22px; font-weight: 700; margin: 8px 0; }
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    border-bottom: 1px dotted #222;
+    padding-bottom: 4px;
+}
+.detail-row:last-child { border-bottom: none; }
+.detail-label { color: var(--fg-muted); }
+.detail-value { font-weight: 700; }
+.detail-value.positive { color: var(--accent-safe); }
+.detail-value.negative { color: var(--accent-warn); }
+
+/* Model Grid */
+.model-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1px;
+    background: var(--border);
+}
+.model-card { background: var(--bg-base); padding: 12px 15px; }
+.model-name { font-weight: 700; margin-bottom: 10px; color: var(--fg-base); }
+.model-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 11px;
+    border-bottom: 1px solid #111;
+}
+.model-stat-label { color: var(--fg-muted); }
+.model-stat-value { font-weight: 700; color: var(--fg-base); }
+
+/* Utilities */
+.loading-text {
+    padding: 20px;
+    color: var(--accent-safe);
+    font-weight: 700;
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink { 50% { opacity: 0; } }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-base); border-left: 1px solid var(--border); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+::-webkit-scrollbar-thumb:hover { background: var(--fg-muted); }
+
+/* ─── CLI Interface ─── */
+.cli-container {
+    display: flex;
+    flex-direction: column;
+    background: rgba(0, 0, 0, 0.5);
+    border-top: 1px solid var(--border);
+    height: 150px;
+    min-height: 100px;
+    max-height: 50vh;
+    resize: vertical;
+    overflow: auto;
+}
+.cli-output {
+    flex-grow: 1;
+    padding: 10px 20px;
+    overflow-y: auto;
+    font-size: 11px;
+    color: var(--accent-safe);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.cli-line {
+    opacity: 0.8;
+}
+.cli-input-wrapper {
+    display: flex;
+    padding: 10px 20px;
+    background: var(--bg-header);
+    border-top: 1px solid var(--border);
+    align-items: center;
+    gap: 10px;
+}
+.cli-prompt {
+    color: var(--accent-safe);
+    font-weight: bold;
+}
+.cli-input {
+    background: transparent;
+    border: none;
+    color: var(--fg-base);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    width: 100%;
+    outline: none;
+}
+.cli-input::placeholder {
+    color: var(--fg-muted);
+}
+
+/* ─── Deep-Dive Modal ─── */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(4px);
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+.modal-overlay.hidden {
+    display: none;
+}
+.modal-content {
+    width: 100%;
+    max-width: 1000px;
+    height: 100%;
+    max-height: 600px;
+    background: var(--bg-base);
+    border: 1px solid var(--accent-safe);
+    box-shadow: 0 0 20px rgba(204, 255, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 20px;
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--accent-safe);
+}
+.modal-btn {
+    background: transparent;
+    border: none;
+    color: var(--accent-warn);
+    font-family: var(--font-mono);
+    font-weight: bold;
+    cursor: pointer;
+}
+.modal-btn:hover {
+    background: var(--accent-warn);
+    color: var(--bg-base);
+}
+.modal-body {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+}
+.modal-sidebar {
+    width: 300px;
+    border-right: 1px solid var(--border);
+    padding: 20px;
+    overflow-y: auto;
+}
+.chart-placeholder {
+    flex-grow: 1;
+    position: relative;
+    background: #020202;
+    overflow: hidden;
+}
+.chart-grid-bg {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+}
+.chart-svg {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+}
+.chart-line-path {
+    fill: none;
+    stroke: var(--accent-safe);
+    stroke-width: 2;
+    filter: drop-shadow(0 0 4px var(--accent-safe));
+}
+.chart-anomaly-point {
+    fill: var(--bg-base);
+    stroke: var(--accent-warn);
+    stroke-width: 2;
+}
+.anomaly-crosshair {
+    position: absolute;
+    top: 0; left: 50%; width: 1px; height: 100%;
+    background: var(--accent-warn);
+    box-shadow: 0 0 10px var(--accent-warn);
+}
+.anomaly-crosshair::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: -50vw; width: 100vw; height: 1px;
+    background: var(--accent-warn);
+}
+
+/* ─── Micro-Animations & Data Viz ─── */
+.glitch-text-small {
+    position: relative;
+    display: inline-block;
+}
+.glitch-text-small::before, .glitch-text-small::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: inherit;
+    clip-path: inset(100% 0 0 0);
+}
+.pair-card:hover .glitch-text-small::before {
+    left: 1px;
+    text-shadow: -1px 0 var(--accent-warn);
+    animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+}
+.pair-card:hover .glitch-text-small::after {
+    left: -1px;
+    text-shadow: -1px 0 var(--accent-safe);
+    animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite reverse;
+}
+
+.sparkline-container {
+    height: 30px;
+    margin-bottom: 10px;
+    opacity: 0.8;
+}
+.sparkline {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+.sparkline path {
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    transition: stroke 0.1s;
+}
+.sparkline-safe { stroke: var(--accent-safe); }
+.sparkline-warn { stroke: var(--accent-warn); }
+
+.pair-card:hover .sparkline-safe { stroke: var(--bg-base); }
+.pair-card:hover .sparkline-warn { stroke: var(--bg-base); }
+

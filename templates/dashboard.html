@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Crypto Anomaly Detection Terminal">
+    <title>[CRYPTO ANOMALY]</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔳</text></svg>">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+    <!-- Texture Layers -->
+    <div class="noise-overlay"></div>
+    <div class="scanlines"></div>
+
+    <div class="layout-grid">
+        <!-- Header -->
+        <header class="header panel">
+            <div class="branding">
+                <span class="glitch-text" data-text="CRYPTO ANOMALY">CRYPTO ANOMALY</span>
+                <span class="version">v1.1.0_KINETIC</span>
+            </div>
+            <div class="status-indicator">
+                <div id="status-box" class="status-box">CONNECTING...</div>
+                <div id="last-update" class="timestamp">00:00:00</div>
+            </div>
+        </header>
+
+        <!-- Sidebar / Global Metrics -->
+        <aside class="sidebar panel">
+            <h2 class="panel-title">// SYSTEM_STATS</h2>
+            <div id="metrics-container" class="metrics-list">
+                <div class="loading-text">AWAITING_DATA_STREAM...</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Pair Cards -->
+            <section class="panel">
+                <h2 class="panel-title">// ACTIVE_TRACKERS</h2>
+                <div class="pairs-grid" id="pairs-grid">
+                    <div class="loading-text">SCANNING_MARKETS...</div>
+                </div>
+            </section>
+
+            <!-- Model Performance -->
+            <section class="panel">
+                <h2 class="panel-title">// AI_ANALYSIS</h2>
+                <div class="model-grid" id="model-grid">
+                    <div class="loading-text">LOADING_DATA...</div>
+                </div>
+            </section>
+            
+            <!-- CLI Interface -->
+            <section class="cli-container panel">
+                <h2 class="panel-title">// CONTROL_TERMINAL</h2>
+                <div class="cli-output" id="cli-output">
+                    <div class="cli-line">> SYSTEM_READY. Type 'help' for commands.</div>
+                </div>
+                <div class="cli-input-wrapper">
+                    <span class="cli-prompt">></span>
+                    <input type="text" id="cli-input" class="cli-input" placeholder="Awaiting input..." autocomplete="off">
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Anomaly Deep-Dive Modal -->
+    <div id="anomaly-modal" class="modal-overlay hidden">
+        <div class="modal-content panel">
+            <div class="modal-header">
+                <h2 id="modal-title" class="glitch-text" data-text="">TRACKER_DETAILS</h2>
+                <button id="modal-close" class="modal-btn">[X] CLOSE</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-sidebar" id="modal-details">
+                    <!-- Dynamic details inserted here -->
+                </div>
+                <div id="modal-chart-placeholder" class="chart-placeholder">
+                    <div class="chart-grid-bg"></div>
+                    <svg class="chart-svg" width="100%" height="100%" preserveAspectRatio="none"></svg>
+                    <div class="anomaly-crosshair hidden"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
