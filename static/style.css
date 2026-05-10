@@ -420,6 +420,8 @@ body {
     padding: 15px 20px;
     background: var(--bg-header);
     border-bottom: 1px solid var(--accent-safe);
+    z-index: 10;
+    position: relative;
 }
 .modal-btn {
     background: transparent;
@@ -449,6 +451,7 @@ body {
     position: relative;
     background: #020202;
     overflow: hidden;
+    min-height: 300px;
 }
 .chart-grid-bg {
     position: absolute;

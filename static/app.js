@@ -384,7 +384,8 @@ function initModal() {
         if (!card) return;
         
         const pairName = card.querySelector(".pair-name").textContent;
-        openModal(pairName, card);
+        const result = previousData[pairName];
+        openModal(pairName, card, result);
     });
     
     closeBtn.addEventListener("click", () => {
@@ -404,12 +405,11 @@ function initModal() {
     });
 }
 
-function openModal(pairName, cardEl) {
+function openModal(pairName, cardEl, result) {
     const modal = $("#anomaly-modal");
     const title = $("#modal-title");
     const details = $("#modal-details");
-    const svg = $(".chart-svg");
-    const crosshair = $(".anomaly-crosshair");
+    const chartContainer = $("#modal-chart-placeholder");
     
     title.textContent = `ANALYSIS // ${pairName}`;
     title.dataset.text = `ANALYSIS // ${pairName}`;
@@ -431,8 +431,6 @@ function openModal(pairName, cardEl) {
     `;
     
     modal.classList.remove("hidden");
-    crosshair.classList.add("hidden");
-    if (svg) svg.innerHTML = "";
     
     // Anime.js open animation
     if (typeof anime !== 'undefined') {
@@ -441,72 +439,79 @@ function openModal(pairName, cardEl) {
             scale: [0.95, 1],
             opacity: [0, 1],
             duration: 400,
-            easing: 'easeOutExpo'
+            easing: 'easeOutExpo',
+            complete: () => {
+                try {
+                    if (result && result.chart_data && typeof LightweightCharts !== 'undefined') {
+                        drawTradingViewChart(chartContainer, result);
+                    }
+                } catch(err) {
+                    console.error('Chart render error:', err);
+                }
+            }
         });
-        
-        if (svg) drawFakeChart(svg, crosshair);
     }
 }
 
-function drawFakeChart(svg, crosshair) {
-    const points = [];
-    const numPoints = 50;
-    // We must wait a tick for the modal to be visible to get clientWidth
-    setTimeout(() => {
-        const width = svg.clientWidth || 600;
-        const height = svg.clientHeight || 400;
-        
-        let y = height / 2;
-        for(let i=0; i<numPoints; i++) {
-            const x = (i / (numPoints - 1)) * width;
-            y += (Math.random() - 0.5) * 40; // Random walk
-            y = Math.max(40, Math.min(height - 40, y));
-            
-            // Spike anomaly at ~80%
-            if (i === Math.floor(numPoints * 0.8)) {
-                y = 20; // massive spike up
-            }
-            points.push({x, y});
+let activeChart = null;
+
+function drawTradingViewChart(container, result) {
+    // Destroy previous chart instance if any
+    if (activeChart) {
+        try { activeChart.remove(); } catch(e) {}
+        activeChart = null;
+    }
+    container.innerHTML = "";
+
+    const chart = LightweightCharts.createChart(container, {
+        width: container.clientWidth || 600,
+        height: container.clientHeight || 400,
+        layout: {
+            background: { type: 'solid', color: 'transparent' },
+            textColor: '#888',
+            fontFamily: "'Space Mono', monospace",
+        },
+        grid: {
+            vertLines: { color: 'rgba(255, 255, 255, 0.05)' },
+            horzLines: { color: 'rgba(255, 255, 255, 0.05)' },
+        },
+        timeScale: {
+            timeVisible: true,
+            secondsVisible: false,
+        },
+    });
+    activeChart = chart;
+
+    const lineColor = result.anomaly_flag ? '#FF3333' : '#CCFF00';
+    const topColor = result.anomaly_flag ? 'rgba(255, 51, 51, 0.4)' : 'rgba(204, 255, 0, 0.4)';
+
+    // Lightweight Charts v5 uses addSeries() instead of addAreaSeries()
+    const series = chart.addSeries(LightweightCharts.AreaSeries, {
+        lineColor,
+        topColor,
+        bottomColor: 'rgba(0, 0, 0, 0)',
+        lineWidth: 2,
+    });
+
+    const uniqueData = [];
+    const seen = new Set();
+    for (const item of result.chart_data) {
+        if (!seen.has(item.time)) {
+            seen.add(item.time);
+            uniqueData.push(item);
         }
-        
-        const pathStr = `M ${points.map(p => `${p.x},${p.y}`).join(" L ")}`;
-        
-        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        path.setAttribute("d", pathStr);
-        path.setAttribute("class", "chart-line-path");
-        
-        // Anomaly circle
-        const anomalyPoint = points[Math.floor(numPoints * 0.8)];
-        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        circle.setAttribute("cx", anomalyPoint.x);
-        circle.setAttribute("cy", anomalyPoint.y);
-        circle.setAttribute("r", "0");
-        circle.setAttribute("class", "chart-anomaly-point");
-        
-        svg.appendChild(path);
-        svg.appendChild(circle);
-        
-        const length = path.getTotalLength();
-        path.setAttribute("stroke-dasharray", length);
-        path.setAttribute("stroke-dashoffset", length);
-        
-        anime.timeline({ easing: 'easeInOutSine' })
-        .add({
-            targets: path,
-            strokeDashoffset: [length, 0],
-            duration: 1000
-        })
-        .add({
-            targets: circle,
-            r: [0, 8],
-            duration: 400,
-            easing: 'easeOutElastic(1, .8)',
-            complete: () => {
-                crosshair.style.left = `${anomalyPoint.x}px`;
-                crosshair.classList.remove("hidden");
-            }
-        });
-    }, 50);
+    }
+
+    uniqueData.sort((a, b) => a.time - b.time);
+    series.setData(uniqueData);
+    chart.timeScale().fitContent();
+
+    const ro = new ResizeObserver(entries => {
+        if (entries.length === 0 || entries[0].target !== container) return;
+        const newRect = entries[0].contentRect;
+        chart.applyOptions({ height: newRect.height, width: newRect.width });
+    });
+    ro.observe(container);
 }
 
 function initMouseTracking() {
