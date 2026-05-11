@@ -6,7 +6,7 @@ Usage:
     python main.py --engineer    Compute technical features on raw data
     python main.py --train       Train anomaly detection models
     python main.py --all         Run the full pipeline (fetch → engineer → train)
-    python main.py --dashboard   Launch the Flask monitoring dashboard
+    python main.py --live        Run the live anomaly detector and export JSON
 """
 
 import argparse
@@ -21,14 +21,14 @@ def main():
 Examples:
   python main.py --all          Run the full pipeline
   python main.py --fetch        Fetch data only
-  python main.py --dashboard    Start the web dashboard
+  python main.py --live         Run the live detector
         """,
     )
     parser.add_argument("--fetch", action="store_true", help="Fetch historical OHLCV data")
     parser.add_argument("--engineer", action="store_true", help="Compute technical features")
     parser.add_argument("--train", action="store_true", help="Train anomaly detection models")
     parser.add_argument("--all", action="store_true", help="Run full pipeline: fetch → engineer → train")
-    parser.add_argument("--dashboard", action="store_true", help="Launch the Flask dashboard")
+    parser.add_argument("--live", action="store_true", help="Run live anomaly detector")
 
     args = parser.parse_args()
 
@@ -74,24 +74,24 @@ Examples:
 
         train_all()
 
-    # ─── Dashboard ─────────────────────────────────────────────
-    if args.dashboard:
+    # ─── Live Detector ─────────────────────────────────────────
+    if args.live:
         print("\n" + "=" * 60)
-        print("  Launching Dashboard")
+        print("  Starting Live Detector")
         print("=" * 60 + "\n")
 
-        from src.dashboard import app
+        from src.live_detector import LiveDetector
 
-        app.run(debug=True, port=5000, host="0.0.0.0")
+        detector = LiveDetector()
+        detector.run_continuous()
 
     # ─── Done ──────────────────────────────────────────────────
-    if not args.dashboard:
+    if not args.live:
         print("\n" + "=" * 60)
         print("  ✓ Pipeline Complete")
         print("=" * 60)
         print("\nNext steps:")
-        print("  python main.py --dashboard    Launch the monitoring UI")
-        print("  python src/live_detector.py   Run continuous detection\n")
+        print("  python main.py --live         Run the live detector to generate JSON\n")
 
 
 if __name__ == "__main__":

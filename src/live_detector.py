@@ -5,6 +5,7 @@ This module bridges the gap between the offline training pipeline and
 the live Flask dashboard, providing a simple API for scoring new data.
 """
 
+import json
 import os
 import time
 from datetime import datetime
@@ -144,7 +145,7 @@ class LiveDetector:
         at the configured interval. Prints results to stdout.
         """
         print(f"\n{'=' * 50}")
-        print(f"Live Anomaly Detector — Running every {CHECK_INTERVAL_SECONDS}s")
+        print(f"Live Anomaly Detector")
         print(f"{'=' * 50}\n")
 
         while True:
@@ -152,6 +153,27 @@ class LiveDetector:
             print(f"\n[{timestamp}] Scanning...")
 
             results = self.detect_all()
+            
+            # Add metadata for the frontend
+            output_data = {
+                "last_updated": timestamp,
+                "anomalies": results
+            }
+
+            # Export to public JSON
+            public_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "public")
+            os.makedirs(public_dir, exist_ok=True)
+            
+            with open(os.path.join(public_dir, "anomalies.json"), "w") as f:
+                json.dump(output_data, f)
+                
+            # Copy metrics to public
+            metrics_src = os.path.join(self.model_dir, "metrics.json")
+            if os.path.exists(metrics_src):
+                import shutil
+                shutil.copy(metrics_src, os.path.join(public_dir, "metrics.json"))
+                
+            print(f"  ✓ Exported results to public/")
 
             for pair, result in results.items():
                 if result["status"] != "ok":
@@ -164,6 +186,10 @@ class LiveDetector:
                     f"{flag} | "
                     f"Votes: {result['anomaly_votes']}/{len(self.models)}"
                 )
+
+            if os.environ.get("RUN_ONCE") == "true":
+                print("\nRun once complete. Exiting.")
+                break
 
             time.sleep(CHECK_INTERVAL_SECONDS)
 

@@ -27,19 +27,30 @@ function formatPercent(value) {
 
 // Data Fetching
 
+// TODO: Replace this URL with your actual Alwaysdata URL!
+const API_URL = "https://YOUR-APP.alwaysdata.net";
+
 async function fetchAnomalies() {
     try {
-        const res = await fetch("/api/anomalies");
+        const res = await fetch(`${API_URL}/anomalies.json`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.json();
+        const data = await res.json();
+        
+        // Handle the new data structure (has last_updated wrapper)
+        if (data.anomalies) {
+            $("#last-update").textContent = data.last_updated;
+            return data.anomalies;
+        }
+        return data; // Fallback if no wrapper
     } catch (err) {
+        console.error("Fetch error:", err);
         return null;
     }
 }
 
 async function fetchMetrics() {
     try {
-        const res = await fetch("/api/metrics");
+        const res = await fetch(`${API_URL}/metrics.json`);
         if (!res.ok) return null;
         return await res.json();
     } catch {
