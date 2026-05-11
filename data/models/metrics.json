@@ -1,0 +1,18 @@
+{
+  "isolation_forest": {
+    "anomalies_detected": 471,
+    "anomaly_rate": 0.03424209378407852
+  },
+  "lof": {
+    "anomalies_detected": 534,
+    "anomaly_rate": 0.03882224645583424
+  },
+  "ensemble": {
+    "anomalies_detected": 100,
+    "anomaly_rate": 0.007270083605961469,
+    "model_agreement": 0.9414758269720102,
+    "avg_price_move_anomaly": 0.004910479584094234,
+    "avg_price_move_normal": 0.0014706023829918523,
+    "move_ratio": 3.3390939936491586
+  }
+}

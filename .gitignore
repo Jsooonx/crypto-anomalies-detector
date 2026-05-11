@@ -1,7 +1,7 @@
 # Data & Models (generated at runtime)
-data/
-*.pkl
-
+data/raw/
+data/processed/
+# Note: data/models/ is allowed so we can deploy trained models
 # Environment
 .env
 venv/
