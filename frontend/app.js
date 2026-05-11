@@ -28,7 +28,7 @@ function formatPercent(value) {
 // Data Fetching
 
 // TODO: Replace this URL with your actual Alwaysdata URL!
-const API_URL = "https://YOUR-APP.alwaysdata.net";
+const API_URL = "https://jsooonx.alwaysdata.net/crypto";
 
 async function fetchAnomalies() {
     try {
