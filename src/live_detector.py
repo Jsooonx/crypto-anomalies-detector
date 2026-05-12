@@ -31,6 +31,8 @@ class LiveDetector:
     def __init__(self, model_dir: str = MODELS_DIR):
         self.model_dir = model_dir
         self.fetcher = CryptoDataFetcher()
+        # Restrict fetching to only the last 10 days for live detection to prevent OOM Killed errors
+        self.fetcher.history_days = 10
         self.models = {}
         self.scaler = None
 

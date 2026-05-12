@@ -1,6 +1,7 @@
 # Data & Models (generated at runtime)
 data/raw/
 data/processed/
+data/features/
 # Note: data/models/ is allowed so we can deploy trained models
 # Environment
 .env
