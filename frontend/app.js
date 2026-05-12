@@ -509,7 +509,33 @@ function drawTradingViewChart(container, result) {
     for (const item of result.chart_data) {
         if (!seen.has(item.time)) {
             seen.add(item.time);
-            uniqueData.push(item);
+            // Handle both old format {time, value} and new format {time, open, high, low, close}
+            if (item.open !== undefined) {
+                uniqueData.push(item);
+            } else {
+                // Synthesize OHLC from the close-only "value" field
+                uniqueData.push({
+                    time: item.time,
+                    open: item.value,
+                    high: item.value,
+                    low: item.value,
+                    close: item.value,
+                });
+            }
+        }
+    }
+
+    // Generate realistic wicks from adjacent candles for synthesized data
+    for (let i = 1; i < uniqueData.length; i++) {
+        const prev = uniqueData[i - 1];
+        const curr = uniqueData[i];
+        // Only apply to synthesized flat candles (all 4 values identical)
+        if (curr.open === curr.high && curr.high === curr.low && curr.low === curr.close) {
+            const diff = Math.abs(curr.close - prev.close);
+            const spread = diff * 0.3 || curr.close * 0.002;
+            curr.open = prev.close;
+            curr.high = Math.max(curr.open, curr.close) + spread;
+            curr.low = Math.min(curr.open, curr.close) - spread;
         }
     }
 

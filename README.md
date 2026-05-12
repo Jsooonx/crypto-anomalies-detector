@@ -72,10 +72,19 @@ pip install -r requirements.txt
 python main.py --all
 ```
 
-### Launch the Dashboard
+### Launch the Live System & Dashboard
 
+Since the architecture is decoupled into a backend generator and a static frontend:
+
+1. **Start the Backend Data Engine**
 ```bash
-python main.py --dashboard
+python main.py --live
+```
+
+2. **Open the Frontend Dashboard**
+Simply open `frontend/index.html` in any browser, or serve it locally:
+```bash
+python -m http.server 5000 -d frontend
 # Open http://localhost:5000
 ```
 

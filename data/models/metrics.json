@@ -1,18 +1,18 @@
 {
   "isolation_forest": {
-    "anomalies_detected": 471,
-    "anomaly_rate": 0.03424209378407852
+    "anomalies_detected": 459,
+    "anomaly_rate": 0.03336968375136314
   },
   "lof": {
-    "anomalies_detected": 534,
-    "anomaly_rate": 0.03882224645583424
+    "anomalies_detected": 669,
+    "anomaly_rate": 0.048636859323882224
   },
   "ensemble": {
-    "anomalies_detected": 100,
-    "anomaly_rate": 0.007270083605961469,
-    "model_agreement": 0.9414758269720102,
-    "avg_price_move_anomaly": 0.004910479584094234,
-    "avg_price_move_normal": 0.0014706023829918523,
-    "move_ratio": 3.3390939936491586
+    "anomalies_detected": 98,
+    "anomaly_rate": 0.0071246819338422395,
+    "model_agreement": 0.9322428207924391,
+    "avg_price_move_anomaly": 0.0050196936459843125,
+    "avg_price_move_normal": 0.0014541436340774132,
+    "move_ratio": 3.4519930001062624
   }
 }
