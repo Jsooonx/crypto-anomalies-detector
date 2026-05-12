@@ -117,7 +117,16 @@ class LiveDetector:
                 "close": float(latest["close"]),
                 "volume": float(latest["volume"]),
                 "history": df_features["close"].tail(20).tolist(),
-                "chart_data": [{"time": int(row.timestamp.timestamp()), "value": float(row.close)} for row in df.tail(100).itertuples()],
+                "chart_data": [
+                    {
+                        "time": int(row.timestamp.timestamp()),
+                        "open": float(row.open),
+                        "high": float(row.high),
+                        "low": float(row.low),
+                        "close": float(row.close)
+                    }
+                    for row in df.tail(100).itertuples()
+                ],
                 "scores": scores,
                 "anomaly_votes": anomaly_votes,
                 "anomaly_flag": ensemble_flag,

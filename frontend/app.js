@@ -493,15 +493,15 @@ function drawTradingViewChart(container, result) {
     });
     activeChart = chart;
 
-    const lineColor = result.anomaly_flag ? '#FF3333' : '#CCFF00';
-    const topColor = result.anomaly_flag ? 'rgba(255, 51, 51, 0.4)' : 'rgba(204, 255, 0, 0.4)';
+    const baseColor = result.anomaly_flag ? '#FF3333' : '#CCFF00';
 
-    // Lightweight Charts v5 uses addSeries() instead of addAreaSeries()
-    const series = chart.addSeries(LightweightCharts.AreaSeries, {
-        lineColor,
-        topColor,
-        bottomColor: 'rgba(0, 0, 0, 0)',
-        lineWidth: 2,
+    const series = chart.addSeries(LightweightCharts.CandlestickSeries, {
+        upColor: baseColor,
+        downColor: 'transparent',
+        borderVisible: true,
+        borderColor: baseColor,
+        wickUpColor: baseColor,
+        wickDownColor: baseColor,
     });
 
     const uniqueData = [];
