@@ -2,7 +2,7 @@
 
 **Ensemble machine learning pipeline for detecting anomalous price behavior in cryptocurrency markets.**
 
-[🟢 **View Live Demo**](https://your-vercel-project-url.vercel.app/)
+[🟢 **View Live Demo**](https://crypto-anomalies-detector.vercel.app)
 
 Built with Python and scikit-learn — uses Isolation Forest + Local Outlier Factor (LOF) to identify statistically unusual candle patterns across multiple trading pairs. The architecture is decoupled with a serverless Python backend generating public API endpoints and a static frontend.
 
