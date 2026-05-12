@@ -30,13 +30,11 @@ class LiveDetector:
 
     def __init__(self, model_dir: str = MODELS_DIR):
         self.model_dir = model_dir
-        self.fetcher = CryptoDataFetcher()
         # Restrict fetching to only the last 10 days for live detection to prevent OOM Killed errors
-        self.fetcher.history_days = 10
         self.models = {}
         self.scaler = None
-
-        self._load_models()
+        # Note: We intentionally do NOT load models here anymore.
+        # They will be loaded lazily to save RAM when CCXT is active.
 
     def _load_models(self):
         """Load all trained models and the scaler from disk."""
@@ -62,23 +60,18 @@ class LiveDetector:
 
         print(f"  Loaded {len(self.models)} models")
 
-    def detect_pair(self, pair: str, num_candles: int = 100) -> dict:
+    def detect_pair(self, pair: str, df: pd.DataFrame) -> dict:
         """
-        Fetch the latest candles for a pair, engineer features, and score
-        the most recent candle with all loaded models.
+        Engineer features and score the most recent candle with all loaded models.
 
         Args:
             pair: Trading pair symbol (e.g., "SOL/USDT")
-            num_candles: How many recent candles to fetch (need enough for feature warmup)
+            df: DataFrame containing the fetched OHLCV data
 
         Returns:
             Dictionary with pair, price, individual model scores, and ensemble flag
         """
         try:
-            # Fetch recent candles
-            df = self.fetcher.fetch_pair(pair)
-            df = df.tail(num_candles).reset_index(drop=True)
-
             # Engineer features
             df_features = compute_features(df)
             df_features = df_features.dropna(subset=FEATURE_COLUMNS)
@@ -141,13 +134,35 @@ class LiveDetector:
     def detect_all(self) -> dict:
         """
         Run anomaly detection on all configured pairs.
-
-        Returns:
-            Dictionary mapping pair names to their detection results
+        Uses a two-step approach to save RAM: Fetch all data first, free CCXT, then load models.
         """
+        import gc
         results = {}
-        for pair in self.fetcher.pairs:
-            results[pair] = self.detect_pair(pair)
+        raw_data = {}
+
+        # STEP 1: Fetch data (CCXT takes ~50MB RAM)
+        fetcher = CryptoDataFetcher()
+        fetcher.history_days = 10  # Only need recent history for live mode
+        
+        for pair in fetcher.pairs:
+            try:
+                df = fetcher.fetch_pair(pair)
+                raw_data[pair] = df.tail(100).reset_index(drop=True)
+            except Exception as e:
+                results[pair] = self._error_result(pair, str(e))
+                
+        # Free CCXT from memory completely before loading scikit-learn
+        del fetcher
+        gc.collect()
+
+        # STEP 2: Load Models (scikit-learn takes ~40MB RAM)
+        if not self.models:
+            self._load_models()
+
+        # STEP 3: Process features and predict
+        for pair, df in raw_data.items():
+            results[pair] = self.detect_pair(pair, df)
+            
         return results
 
     def run_continuous(self):
