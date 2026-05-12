@@ -2,31 +2,32 @@
 
 **Ensemble machine learning pipeline for detecting anomalous price behavior in cryptocurrency markets.**
 
-Built with Python, scikit-learn, and Flask — uses Isolation Forest + Local Outlier Factor (LOF) to identify statistically unusual candle patterns across multiple trading pairs.
+[🟢 **View Live Demo**](https://your-vercel-project-url.vercel.app/)
+
+Built with Python and scikit-learn — uses Isolation Forest + Local Outlier Factor (LOF) to identify statistically unusual candle patterns across multiple trading pairs. The architecture is decoupled with a serverless Python backend generating public API endpoints and a static frontend.
 
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3+-F7931E?logo=scikitlearn&logoColor=white)
-![Flask](https://img.shields.io/badge/Flask-2.3+-000?logo=flask&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ---
 
 ## Architecture
 
-```
-Raw OHLCV Data → Feature Engineering → Model Training → Live Detection → Dashboard
-     (CCXT)         (16 indicators)      (IF + LOF)       (Ensemble)      (Flask)
+```text
+Raw OHLCV Data → Feature Engineering → Model Training → Live Detection → API Export → Static Frontend
+     (CCXT)         (16 indicators)      (IF + LOF)       (Ensemble)      (JSON)      (Vercel)
 ```
 
 ### Pipeline Flow
 
 | Step | Module | Description |
 |------|--------|-------------|
-| 1 | `data_fetcher.py` | Fetches 6 months of hourly OHLCV data from Binance via CCXT |
+| 1 | `data_fetcher.py` | Fetches OHLCV data from Binance via CCXT |
 | 2 | `feature_engineer.py` | Computes 16 technical indicators (RSI, MACD, Bollinger, ATR, OBV, Z-scores) |
 | 3 | `model_trainer.py` | Trains Isolation Forest + LOF with chronological train/test split |
-| 4 | `live_detector.py` | Loads models, scores new candles, ensemble voting |
-| 5 | `dashboard.py` | Flask UI with real-time anomaly cards and model metrics |
+| 4 | `live_detector.py` | Loads models, scores new candles, and exports `anomalies.json` |
+| 5 | `frontend/` | Vanilla JS static dashboard fetching live predictions |
 
 ### Models
 
@@ -106,24 +107,23 @@ pytest tests/ -v
 
 ## Project Structure
 
-```
+```text
 crypto-anomaly-detector/
 ├── src/
 │   ├── data_fetcher.py      # CCXT → Binance OHLCV
 │   ├── feature_engineer.py  # 16 technical indicators
 │   ├── model_trainer.py     # Isolation Forest + LOF ensemble
-│   ├── live_detector.py     # Real-time scoring engine
-│   └── dashboard.py         # Flask web UI
+│   └── live_detector.py     # Real-time scoring & JSON API generator
 ├── config/
 │   └── settings.py          # Centralized configuration
-├── templates/
-│   └── dashboard.html       # Dashboard UI template
-├── static/
-│   ├── style.css            # Premium dark-mode design
-│   └── app.js               # Dashboard client logic
+├── frontend/                # Vercel-ready Static Frontend
+│   ├── index.html           # Dashboard UI
+│   ├── style.css            # Kinetic Brutalism design
+│   └── app.js               # Client logic & TradingView charts
 ├── tests/
 │   └── test_pipeline.py     # Synthetic data tests
 ├── data/                    # Generated at runtime (.gitignored)
+├── public/                  # Exported JSON API endpoint (.gitignored)
 ├── main.py                  # CLI entry point
 ├── requirements.txt
 └── README.md

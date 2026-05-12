@@ -2,7 +2,7 @@
 Live Detector — Loads trained models and scores incoming candle data in real-time.
 
 This module bridges the gap between the offline training pipeline and
-the live Flask dashboard, providing a simple API for scoring new data.
+the static Vercel dashboard, providing a simple API for scoring new data.
 """
 
 import json
