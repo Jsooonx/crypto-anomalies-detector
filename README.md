@@ -4,7 +4,7 @@
 
 [🟢 **View Live Demo**](https://crypto-anomalies-detector.vercel.app)
 
-Built with Python and scikit-learn — uses Isolation Forest + Local Outlier Factor (LOF) to identify statistically unusual candle patterns across multiple trading pairs. The architecture is decoupled with a serverless Python backend generating public API endpoints and a static frontend.
+Built with Python and scikit-learn uses Isolation Forest + Local Outlier Factor (LOF) to identify statistically unusual candle patterns across multiple trading pairs. The architecture is decoupled with a serverless Python backend generating public API endpoints and a static frontend.
 
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3+-F7931E?logo=scikitlearn&logoColor=white)
@@ -31,9 +31,9 @@ Raw OHLCV Data → Feature Engineering → Model Training → Live Detection →
 
 ### Models
 
-- **Isolation Forest** — Tree-based global anomaly detection. Isolates outliers via random recursive partitioning; anomalies require fewer splits.
-- **Local Outlier Factor (LOF)** — Density-based local anomaly detection. Measures density deviation relative to neighbors.
-- **Ensemble** — Flags a candle as anomalous only if **both** models agree (reduces false positives).
+- **Isolation Forest** Tree-based global anomaly detection. Isolates outliers via random recursive partitioning; anomalies require fewer splits.
+- **Local Outlier Factor (LOF)** Density-based local anomaly detection. Measures density deviation relative to neighbors.
+- **Ensemble** Flags a candle as anomalous only if **both** models agree (reduces false positives).
 
 ### Features Engineered (16 total)
 
@@ -56,7 +56,7 @@ Raw OHLCV Data → Feature Engineering → Model Training → Live Detection →
 ### Installation
 
 ```bash
-git clone https://github.com/yourusername/crypto-anomaly-detector.git
+git clone https://github.com/Jsooonx/crypto-anomaly-detector.git
 cd crypto-anomaly-detector
 
 python -m venv venv
@@ -166,4 +166,4 @@ MIT
 
 ---
 
-*Built as a portfolio project demonstrating ML engineering, data pipeline design, and real-time monitoring.*
+*Created by Jsooonx for Portfolio | 2026*
